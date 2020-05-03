@@ -7,6 +7,11 @@ import time
 
 def pump_setup():
     GPIO.setmode(GPIO.BCM)
+    GPIO.setup(cocktailpi_config.gpio_pump_a, GPIO.OUT)
+    GPIO.setup(cocktailpi_config.gpio_pump_b, GPIO.OUT)
+    GPIO.setup(cocktailpi_config.gpio_pump_c, GPIO.OUT)
+    GPIO.setup(cocktailpi_config.gpio_pump_d, GPIO.OUT)
+
     # GPIO.setup(cocktailpi_config.gpio_button_green, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     # GPIO.setup(cocktailpi_config.gpio_button_yellow, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
@@ -47,4 +52,21 @@ def pump_setup():
 #             print('Button Pressed')
 #             time.sleep(0.2)
 
+pump_setup()
 
+GPIO.output(cocktailpi_config.gpio_pump_a, GPIO.HIGH)
+time.sleep(1.5)
+GPIO.output(cocktailpi_config.gpio_pump_b, GPIO.HIGH)
+time.sleep(1.5)
+GPIO.output(cocktailpi_config.gpio_pump_c, GPIO.HIGH)
+time.sleep(1.5)
+GPIO.output(cocktailpi_config.gpio_pump_d, GPIO.HIGH)
+time.sleep(1.5)
+
+GPIO.output(cocktailpi_config.gpio_pump_a, GPIO.LOW)
+time.sleep(0.5)
+GPIO.output(cocktailpi_config.gpio_pump_b, GPIO.LOW)
+time.sleep(0.5)
+GPIO.output(cocktailpi_config.gpio_pump_c, GPIO.LOW)
+time.sleep(0.5)
+GPIO.output(cocktailpi_config.gpio_pump_d, GPIO.LOW)
