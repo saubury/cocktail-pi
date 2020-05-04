@@ -35,8 +35,8 @@ def mainAWS(namebase):
 	cocktailpi_util.printmsg( '"{}"'.format(finalstring))
 	generateAndPlayAudio(namebase, finalstring)
 
-def quickAudioMsg(audiotext):
-	playMP3('./sounds/eventually.mp3', background=True)
+def quickAudioMsg(audiotext, presound='eventually.mp3'):
+	playMP3('./sounds/{}'.format(presound), background=True)
 
 	tmp_file='./tmp_mp3'
 	try:

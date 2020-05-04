@@ -13,7 +13,7 @@ recipe_gnt = {"Name": "Gin and Tonic", "Gin": 5, "Tonic": 20}
 recipe_martini  = {"Name": "Martini", "Gin": 12, "Vermouth": 18}
 recipe_everything = {"Name": "A bit of everything", "Gin": 1, "Tonic": 2, "Vermouth": 3, "Cordial": 4}
 
-this_drink = recipe_gnt
+this_drink = recipe_martini
 
 
 def pump_setup():
@@ -40,19 +40,23 @@ def lookup_time(drink_name, pump_name):
     except KeyError:
         return 0
 
-pump_setup()
+def do_drink():
+    pump_setup()
 
-(duration_a, duration_b, duration_c, duration_d) = (lookup_time(this_drink, "PUMP_A"), lookup_time(this_drink, "PUMP_B"), lookup_time(this_drink, "PUMP_C"), lookup_time(this_drink, "PUMP_D"))
-wait_time = max(duration_a, duration_b, duration_c, duration_d )
-msg = "Making your drink, {} . Please be patient; it will be ready in {} seconds.".format(this_drink['Name'], wait_time)
-cocktailpi_aws.quickAudioMsg(msg)
+    (duration_a, duration_b, duration_c, duration_d) = (lookup_time(this_drink, "PUMP_A"), lookup_time(this_drink, "PUMP_B"), lookup_time(this_drink, "PUMP_C"), lookup_time(this_drink, "PUMP_D"))
+    wait_time = max(duration_a, duration_b, duration_c, duration_d )
+    msg = "Making your {} . Please be patient; it will be ready in {} seconds.".format(this_drink['Name'], wait_time)
+    cocktailpi_aws.quickAudioMsg(msg)
 
 
-pump_thread_start(cocktailpi_config.gpio_pump_a, duration_a)
-pump_thread_start(cocktailpi_config.gpio_pump_b, duration_b)
-pump_thread_start(cocktailpi_config.gpio_pump_c, duration_c)
-pump_thread_start(cocktailpi_config.gpio_pump_d, duration_d)
+    pump_thread_start(cocktailpi_config.gpio_pump_a, duration_a)
+    pump_thread_start(cocktailpi_config.gpio_pump_b, duration_b)
+    pump_thread_start(cocktailpi_config.gpio_pump_c, duration_c)
+    pump_thread_start(cocktailpi_config.gpio_pump_d, duration_d)
 
-time.sleep(wait_time)
-msg = "Your drink, {}, is ready. Please enjoy.".format(this_drink['Name'])
-cocktailpi_aws.quickAudioMsg(msg)
+    time.sleep(wait_time)
+    msg = "Your drink, {}, is ready. Please enjoy.".format(this_drink['Name'])
+    cocktailpi_aws.quickAudioMsg(msg, 'triumphant.mp3')
+
+if __name__ == "__main__":
+    do_drink()
