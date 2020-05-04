@@ -18,7 +18,7 @@ import cocktailpi_button
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Face processing puppy.')
+    parser = argparse.ArgumentParser(description='Face processing cocktail maker.')
 
 
     parser.add_argument("-x", "--servo_x", type=int, help="servo x setting")

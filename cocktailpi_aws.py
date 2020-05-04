@@ -11,24 +11,39 @@ import cocktailpi_config
 import cocktailpi_util
 
 
-def generateAndPlayAudio(namebase, audiotext):
+def generateAndPlayAudio(namebase, audiotext, background=True):
 	file_mp3 = namebase + '.mp3'
 	if (not os.path.exists(file_mp3)):
 		cocktailpi_util.printmsg( 'MP3 file not there - let us create it')
 		client = boto3.client('polly')
-		response = client.synthesize_speech(OutputFormat='mp3', Text=audiotext, VoiceId='Joey')	
+		response = client.synthesize_speech(OutputFormat='mp3', Text=audiotext, VoiceId='Emma')	
 		thebytes = response['AudioStream'].read()
 		thefile = open(file_mp3, 'wb')
 		thefile.write(thebytes)
 		thefile.close()
-		
-	os.system('mpg123 -q ' + file_mp3 + ' &')
+		playMP3(file_mp3, background)
 
+
+def playMP3(file_mp3, background=True):
+	if background:
+		os.system('mpg123 -q ' + file_mp3 + ' &')
+	else:
+		os.system('mpg123 -q ' + file_mp3 + ' ')
 
 def mainAWS(namebase):
 	finalstring = takePhotoAndProcess(namebase)
 	cocktailpi_util.printmsg( '"{}"'.format(finalstring))
 	generateAndPlayAudio(namebase, finalstring)
+
+def quickAudioMsg(audiotext):
+	playMP3('./sounds/eventually.mp3', background=True)
+
+	tmp_file='./tmp_mp3'
+	try:
+	    os.remove(tmp_file+ '.mp3')
+	except	OSError:
+		pass
+	generateAndPlayAudio(tmp_file, audiotext, background=False)
 
 
 def takePhotoAndProcess(namebase):

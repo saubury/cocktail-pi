@@ -1,3 +1,4 @@
 *.pyc
 *.swp
 tmp/*
+tmp_mp3.mp3
