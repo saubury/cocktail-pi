@@ -4,69 +4,50 @@ import cocktailpi_util
 import RPi.GPIO as GPIO
 import datetime
 import time
+import threading
+
+
+pump_map = {"PUMP_A": "Gin", "PUMP_B": "Tonic", "PUMP_C": "Cordial", "PUMP_D": "Vermouth"}
+recipe_gnt = {"Gin": 5, "Tonic": 20}
+recipe_martini  = {"Gin": 12, "Vermouth": 18}
+recipe_everything = {"Gin": 1, "Tonic": 2, "Vermouth": 3, "Cordial": 4}
+
+this_drink = recipe_gnt
+
 
 def pump_setup():
     GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
     GPIO.setup(cocktailpi_config.gpio_pump_a, GPIO.OUT)
     GPIO.setup(cocktailpi_config.gpio_pump_b, GPIO.OUT)
     GPIO.setup(cocktailpi_config.gpio_pump_c, GPIO.OUT)
     GPIO.setup(cocktailpi_config.gpio_pump_d, GPIO.OUT)
+    GPIO.setwarnings(True)
 
-    # GPIO.setup(cocktailpi_config.gpio_button_green, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    # GPIO.setup(cocktailpi_config.gpio_button_yellow, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+def pump_thread_runner(gpio_pump_name, run_seconds):
+    GPIO.output(gpio_pump_name, GPIO.HIGH)
+    time.sleep(run_seconds)
+    GPIO.output(gpio_pump_name, GPIO.LOW)
 
-# def button_is_green():
-#     return GPIO.input(cocktailpi_config.gpio_button_green) == False
+def pump_thread_start(gpio_pump_name, run_seconds):
+    thread = threading.Thread(target=pump_thread_runner, args=(gpio_pump_name, run_seconds))
+    thread.start()
 
-# def button_is_yellow():
-#     return GPIO.input(cocktailpi_config.gpio_button_yellow) == False
-
-# def do_button():
-#     cocktailpi_util.printmsg("Button Press Mode")
-#     pump_setup()
-
-#     while True:
-#         time.sleep(0.2)
-
-#         if button_is_yellow():
-#             print('Button Pressed Yellow')
-#             cocktailpi_servo.servo_on()
-#             cocktailpi_video.process_livevideo()
-#             cocktailpi_servo.servo_off()
-#             time.sleep(0.2)
-
-#         if button_is_green():
-#             print('Button Pressed Green')
-#             file_string='./tmp/snapped_{}'.format(datetime.datetime.today().strftime('%Y%m%d-%H%M%S'))
-#             cocktailpi_aws.mainAWS(file_string)
-#             time.sleep(0.2)
-
-# def do_button_debug():
-#     cocktailpi_util.printmsg("Debug Button Press Mode")
-#     GPIO.setmode(GPIO.BCM)
-#     GPIO.setup(cocktailpi_config.gpio_button_pcb, GPIO.IN)
-
-#     while True:
-#         input_state = GPIO.input(cocktailpi_config.gpio_button_pcb)
-#         if input_state == False:
-#             print('Button Pressed')
-#             time.sleep(0.2)
+def lookup_time(drink_name, pump_name):
+    try:
+        return drink_name[pump_map[pump_name]]
+    except KeyError:
+        return 0
 
 pump_setup()
 
-GPIO.output(cocktailpi_config.gpio_pump_a, GPIO.HIGH)
-time.sleep(1.5)
-GPIO.output(cocktailpi_config.gpio_pump_b, GPIO.HIGH)
-time.sleep(1.5)
-GPIO.output(cocktailpi_config.gpio_pump_c, GPIO.HIGH)
-time.sleep(1.5)
-GPIO.output(cocktailpi_config.gpio_pump_d, GPIO.HIGH)
-time.sleep(1.5)
 
-GPIO.output(cocktailpi_config.gpio_pump_a, GPIO.LOW)
-time.sleep(0.5)
-GPIO.output(cocktailpi_config.gpio_pump_b, GPIO.LOW)
-time.sleep(0.5)
-GPIO.output(cocktailpi_config.gpio_pump_c, GPIO.LOW)
-time.sleep(0.5)
-GPIO.output(cocktailpi_config.gpio_pump_d, GPIO.LOW)
+
+
+
+pump_thread_start(cocktailpi_config.gpio_pump_a, lookup_time(this_drink, "PUMP_A"))
+pump_thread_start(cocktailpi_config.gpio_pump_b, lookup_time(this_drink, "PUMP_B"))
+pump_thread_start(cocktailpi_config.gpio_pump_c, lookup_time(this_drink, "PUMP_C"))
+pump_thread_start(cocktailpi_config.gpio_pump_d, lookup_time(this_drink, "PUMP_D"))
+
+
