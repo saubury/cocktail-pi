@@ -31,9 +31,10 @@ def playMP3(file_mp3, background=True):
 		os.system('mpg123 -q ' + file_mp3 + ' ')
 
 def mainAWS(namebase):
-	finalstring = takePhotoAndProcess(namebase)
+	finalstring, emotion, age_range_low = takePhotoAndProcess(namebase)
 	cocktailpi_util.printmsg( '"{}"'.format(finalstring))
-	generateAndPlayAudio(namebase, finalstring)
+	generateAndPlayAudio(namebase, finalstring, background=False)
+	return emotion, age_range_low
 
 def quickAudioMsg(audiotext, presound='eventually.mp3'):
 	playMP3('./sounds/{}'.format(presound), background=True)
@@ -49,6 +50,8 @@ def quickAudioMsg(audiotext, presound='eventually.mp3'):
 def takePhotoAndProcess(namebase):
 	file_jpg=namebase + '.jpg'
 	file_json=namebase + '.json'
+	emotion = 'unknown'
+	age_range_low = 10
 	cocktailpi_util.printmsg( 'Name Base:"{}", JPG:"{}"'.format(namebase, file_jpg))
 	if (not os.path.exists(file_jpg) or not os.path.exists(file_json)):
 		cocktailpi_util.printmsg( 'File not there - let us create it')
@@ -67,10 +70,10 @@ def takePhotoAndProcess(namebase):
 			json.dump(response, outfile)
 
         try:
-   	    finalstring = processJSON(file_json)
+   	    finalstring, emotion, age_range_low = processJSON(file_json)
         except (IndexError):
             finalstring = 'No face found'
-	return finalstring
+	return finalstring, emotion, age_range_low
 
 
 def processJSON(file_json):
@@ -83,32 +86,34 @@ def processJSON(file_json):
 	age_range_high=data["FaceDetails"][0]["AgeRange"]["High"]
 	gender=data["FaceDetails"][0]["Gender"]["Value"]
 
-	finalstring = finalstring + 'It is nice to meet a human ' + gender + '. '
+	finalstring = finalstring + 'It is nice to meet a human {}. '.format(gender)
 	finalstring = finalstring + 'I think you are at least {} but are no older than {} years old. '.format(age_range_low, age_range_high)
 
-	if data["FaceDetails"][0]["Eyeglasses"]["Value"]:
-		cocktailpi_util.printmsg( 'Eyeglasses')
-		finalstring = finalstring + 'Nice glasses. '
+	# if data["FaceDetails"][0]["Eyeglasses"]["Value"]:
+	# 	cocktailpi_util.printmsg( 'Eyeglasses')
+	# 	finalstring = finalstring + 'Nice glasses. '
 
-	if data["FaceDetails"][0]["Sunglasses"]["Value"]:
-		cocktailpi_util.printmsg( 'Sunglasses')
-		finalstring = finalstring + 'Possibly sun-glasses. '
+	# if data["FaceDetails"][0]["Sunglasses"]["Value"]:
+	# 	cocktailpi_util.printmsg( 'Sunglasses')
+	# 	finalstring = finalstring + 'Possibly sun-glasses. '
 
-	if data["FaceDetails"][0]["Smile"]["Value"]:
-		cocktailpi_util.printmsg( 'Smiling')
-		finalstring = finalstring + 'I like your smile. '
+	# if data["FaceDetails"][0]["Smile"]["Value"]:
+	# 	cocktailpi_util.printmsg( 'Smiling')
+	# 	finalstring = finalstring + 'I like your smile. '
 
-	if data["FaceDetails"][0]["Mustache"]["Value"]:
-		cocktailpi_util.printmsg( 'Mustache')
-		finalstring = finalstring + 'Cool mustache. '
+	# if data["FaceDetails"][0]["Mustache"]["Value"]:
+	# 	cocktailpi_util.printmsg( 'Mustache')
+	# 	finalstring = finalstring + 'Cool mustache. '
 
-	if data["FaceDetails"][0]["Beard"]["Value"]:
-		cocktailpi_util.printmsg( 'Beard')
-		finalstring = finalstring + 'Neat beard. '
+	# if data["FaceDetails"][0]["Beard"]["Value"]:
+	# 	cocktailpi_util.printmsg( 'Beard')
+	# 	finalstring = finalstring + 'Neat beard. '
 
+	json_obj = data["FaceDetails"][0]
+	sorted_obj = sorted(json_obj['Emotions'], key=lambda x : x['Confidence'], reverse=True)
 	
-	emotion = data["FaceDetails"][0]["Emotions"][0]["Type"]
-	finalstring = finalstring + 'Are you feeling ' + emotion + '! '
+	emotion = sorted_obj[0]['Type']
+	finalstring = finalstring + 'You are feeling {}!'.format(emotion) 
 
-	return finalstring
+	return finalstring, emotion, age_range_low
 

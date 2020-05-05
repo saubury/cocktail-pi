@@ -26,13 +26,13 @@ def button_pcb():
     return GPIO.input(cocktailpi_config.gpio_button_pcb) == False
 
 def do_stuff():
-    msg = 'Let me look at your face'
-    cocktailpi_aws.quickAudioMsg(msg, 'chimes-glassy.mp3')
+    msg = 'Hello, my name is Bridget your lovely bar tender. Please stay still, I am going to take a quick photo.'
+    cocktailpi_aws.quickAudioMsg(msg)
     file_string='./tmp/snapped_{}'.format(datetime.datetime.today().strftime('%Y%m%d-%H%M%S'))
-    cocktailpi_aws.mainAWS(file_string)
+    emotion, age_range_low = cocktailpi_aws.mainAWS(file_string)
 
     if switch_is_on():
-        cocktailpi_pump.do_drink()
+        cocktailpi_pump.do_drink(emotion, age_range_low)
 
 
 button_setup()
