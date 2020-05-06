@@ -89,31 +89,11 @@ def processJSON(file_json):
 	finalstring = finalstring + 'It is nice to meet a human {}. '.format(gender)
 	finalstring = finalstring + 'I think you are at least {} but are no older than {} years old. '.format(age_range_low, age_range_high)
 
-	# if data["FaceDetails"][0]["Eyeglasses"]["Value"]:
-	# 	cocktailpi_util.printmsg( 'Eyeglasses')
-	# 	finalstring = finalstring + 'Nice glasses. '
-
-	# if data["FaceDetails"][0]["Sunglasses"]["Value"]:
-	# 	cocktailpi_util.printmsg( 'Sunglasses')
-	# 	finalstring = finalstring + 'Possibly sun-glasses. '
-
-	# if data["FaceDetails"][0]["Smile"]["Value"]:
-	# 	cocktailpi_util.printmsg( 'Smiling')
-	# 	finalstring = finalstring + 'I like your smile. '
-
-	# if data["FaceDetails"][0]["Mustache"]["Value"]:
-	# 	cocktailpi_util.printmsg( 'Mustache')
-	# 	finalstring = finalstring + 'Cool mustache. '
-
-	# if data["FaceDetails"][0]["Beard"]["Value"]:
-	# 	cocktailpi_util.printmsg( 'Beard')
-	# 	finalstring = finalstring + 'Neat beard. '
-
 	json_obj = data["FaceDetails"][0]
 	sorted_obj = sorted(json_obj['Emotions'], key=lambda x : x['Confidence'], reverse=True)
 	
 	emotion = sorted_obj[0]['Type']
-	finalstring = finalstring + 'You are feeling {}!'.format(emotion) 
+	finalstring = finalstring + 'You appear to be {}!'.format(emotion) 
 
 	return finalstring, emotion, age_range_low
 
