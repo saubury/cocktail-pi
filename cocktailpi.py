@@ -1,86 +1,79 @@
-from picamera.array import PiRGBArray
-from picamera import PiCamera
-import argparse
-import time
-import cv2
-import sys
-import imutils
+# Project Imports
+import config
+import cloud
+import pump
 import RPi.GPIO as GPIO
 import time
+from recipe import *
 
-# Project Imports
-import cocktailpi_config
-import cocktailpi_util
-import cocktailpi_servo
-import cocktailpi_video
-import cocktailpi_aws
-import cocktailpi_button
-
-
-def main():
-    parser = argparse.ArgumentParser(description='Face processing cocktail maker.')
+def button_setup():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(config.gpio_button_green, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(config.gpio_button_yellow, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(config.gpio_button_pcb, GPIO.IN)
 
 
-    parser.add_argument("-x", "--servo_x", type=int, help="servo x setting")
-    parser.add_argument("-y", "--servo_y", type=int, help="servo y setting")
-    parser.add_argument("--videofile", help="pre recorded video file")
-    parser.add_argument("--aws", help="test AWS")
-    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
-    parser.add_argument("-b", "--button", help="wait for external button press", action="store_true")
-    parser.add_argument("-db", "--debugbutton", help="print a debug message on PCB button press", action="store_true")
-    parser.add_argument("--noservo", help="surpress the servo", action="store_true")
-    parser.add_argument("--livevideo", help="live video", action="store_true")
-    parser.add_argument("--servodemo", help="demonstrate the servo", action="store_true")
-    parser.add_argument("--showvideoframe", help="Display a video frame via XWindows", action="store_true")
-    parser.add_argument("--novideo", help="Surpress a video frame via XWindows", action="store_true")
+def button_black():
+    return GPIO.input(config.gpio_button_green) == False
+
+def switch_is_on():
+    return GPIO.input(config.gpio_button_yellow) == False
+
+def button_green():
+    return GPIO.input(config.gpio_button_pcb) == False
+
+def do_bartender():
+    msg = 'Hello, my name is Bridget your lovely bar tender. Please stay still, I am going to take a quick photo.'
+    cloud.quickAudioMsg(msg)
+
+    try:
+        gender, emotion, age_range_low = cloud.takePhotoAndProcess()
+    except (IndexError):
+        cloud.quickAudioMsg('I can not see anyone at the bar')
+        return
     
-    args = parser.parse_args()
+    msg = 'It is nice to meet a human {}. I think you are at least {} years old. You appear to be {}! '.format(gender, age_range_low, emotion)
+    cloud.quickAudioMsg(msg)
 
-    cocktailpi_config.verbosemode= args.verbose
-    cocktailpi_config.showvideoframe= args.showvideoframe
-    cocktailpi_config.novideo= args.novideo
+    # Valid Values: HAPPY | SAD | ANGRY | CONFUSED | DISGUSTED | SURPRISED | CALM | UNKNOWN | FEAR
+    if age_range_low < 25:
+        drink_group = 'child'
+        this_drink = recipe_limesoda
+    else:
+        drink_group = 'adult'
+        if (emotion in [ 'HAPPY', 'CONFUSED', 'SURPRISED' ]):
+            this_drink = recipe_vodkasodacranburry
+        elif (emotion in [ 'ANGRY', 'DISGUSTED', 'FEAR' ]):
+            this_drink = recipe_vodkalimesoda            
+        else:
+            this_drink = recipe_vodkasoda
 
-    if args.noservo:
-        cocktailpi_config.servousage = False
-        cocktailpi_util.printmsg("Servo turned off")
+    msg = "As you appear to be {}, I think an appropriate {} drink would be a {}. ".format(emotion, drink_group, this_drink['Name'])
+    cloud.quickAudioMsg(msg)
 
-    if (args.livevideo):
-        cocktailpi_servo.servo_on()
-        cocktailpi_video.process_livevideo()
-        cocktailpi_servo.servo_off()
+    if switch_is_on():
+        msg = "Press the green button for a {}, or the black button to cancel ".format(this_drink['Name'])
+        cloud.quickAudioMsg(msg)
+        while True:
+            time.sleep(0.1)
+            if button_black():
+                cloud.quickAudioMsg("OK, cancelled")
+                time.sleep(1)
+                break;
 
-    elif (args.button):
-        cocktailpi_button.do_button()
-
-    elif (args.aws):
-        cocktailpi_aws.mainAWS(args.aws)
-
-    elif args.videofile:
-        cocktailpi_config.servousage = False
-        cocktailpi_video.process_video(args.videofile)
- 
-    elif (args.servo_x >0 and args.servo_y >0):
-        cocktailpi_servo.servo_on()
-        cocktailpi_servo.servo_xy(args.servo_x, args.servo_y)
-        cocktailpi_servo.servo_off()
-        
-    elif args.servodemo:
-        cocktailpi_util.printmsg("Servo Demo")
-        cocktailpi_servo.servo_on()
-        cocktailpi_servo.servo_demo()
-        cocktailpi_servo.servo_off()
-
-    elif (args.debugbutton):
-        cocktailpi_button.do_button_debug()
+            elif button_green():
+                pump.do_drink(this_drink)
+                break;
 
 
 
 if __name__ == "__main__":
-    try:
-        main()
+    button_setup()
+    while True:
+        if button_black():
+            do_bartender()
 
-    finally:
-        cocktailpi_servo.servo_off()
-        cocktailpi_util.printmsg ("Cleanup and exit")
+        if button_green():
+            cloud.quickAudioMsg('Boozy boozy. Boozy boozy. Would you like a Boozy boozy?')
 
-
+        time.sleep(0.1)

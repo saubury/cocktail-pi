@@ -2,3 +2,7 @@
 *.swp
 tmp/*
 tmp_mp3.mp3
+bday.py
+test.py
+cache/*
+RMME/*
