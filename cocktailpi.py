@@ -5,6 +5,7 @@ import pump
 import RPi.GPIO as GPIO
 import time
 from recipe import *
+import os
 
 def button_setup():
     GPIO.setmode(GPIO.BCM)
@@ -68,6 +69,10 @@ def do_bartender():
 
 
 if __name__ == "__main__":
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+
     button_setup()
     while True:
         if button_black():

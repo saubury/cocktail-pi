@@ -1,0 +1,12 @@
+[Unit]
+Description=Run the Raspberry Pi Cocktail Maker
+After=multi-user.target
+
+[Service]
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/Documents/git/cocktail-pi
+ExecStart=/usr/bin/python /home/pi/Documents/git/cocktail-pi/cocktailpi.py
+
+[Install]
+WantedBy=multi-user.target
