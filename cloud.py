@@ -12,7 +12,7 @@ import datetime
 import config
 
 
-def quickAudioMsg(audiotext, presound='eventually.mp3'):
+def quickAudioMsg(audiotext, presound='eventually.mp3', voice='Emma'):
     file_mp3 = './cache/' + cache_filename(audiotext) + '.mp3'
 
     if (os.path.exists(file_mp3)):
@@ -21,7 +21,7 @@ def quickAudioMsg(audiotext, presound='eventually.mp3'):
     else:
         playMP3('./sounds/{}'.format(presound), background=True)
         client = boto3.client('polly')
-        response = client.synthesize_speech(OutputFormat='mp3', Text=audiotext, VoiceId='Emma')    
+        response = client.synthesize_speech(OutputFormat='mp3', Text=audiotext, VoiceId=voice)    
         thebytes = response['AudioStream'].read()
         thefile = open(file_mp3, 'wb')
         thefile.write(thebytes)
@@ -72,9 +72,9 @@ def processJSON(file_json):
     return gender, emotion, age_range_low
 
 def cache_filename(filename):
-    # make a leal filename, remove spaces and puncuation - and limit to 50 characters
+    # make a legal filename, remove spaces and punctuation - and limit to 50 characters
     hashstring = hashlib.md5(filename).hexdigest()
-    fileprefix = re.sub('[ \'\.;"!,]', '_', filename).lower()[0:50]
+    fileprefix = re.sub('[^a-zA-Z0-9]', '_', filename).lower()[0:50]
     return fileprefix + hashstring
 
 if __name__ == '__main__':
