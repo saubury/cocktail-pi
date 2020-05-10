@@ -9,21 +9,21 @@ import os
 
 def button_setup():
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(config.gpio_button_green, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(config.gpio_button_yellow, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(config.gpio_button_pcb, GPIO.IN)
+    GPIO.setup(config.gpio_button_red, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(config.gpio_switch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(config.gpio_button_blk, GPIO.IN)
 
 def isEnglish():
     return switch_is_on()
 
-def button_black():
-    return GPIO.input(config.gpio_button_green) == False
+def button_red():
+    return GPIO.input(config.gpio_button_red) == False
 
 def switch_is_on():
-    return GPIO.input(config.gpio_button_yellow) == False
+    return GPIO.input(config.gpio_switch) == False
 
-def button_green():
-    return GPIO.input(config.gpio_button_pcb) == False
+def button_blk():
+    return GPIO.input(config.gpio_button_blk) == False
 
 def doBilingualMsg(msg_en, msg_fr, presound='eventually.mp3'):
     if isEnglish():
@@ -34,7 +34,7 @@ def doBilingualMsg(msg_en, msg_fr, presound='eventually.mp3'):
 
 def do_bartender():
     msg_en = 'Hello, my name is Bridget your lovely bar tender. Please stay still, I am going to take a quick photo.'
-    msg_fr = 'Bonjour, Je m''appelle Brigitte. Ne bougez pas, je vais vous prendre en photo.'
+    msg_fr = 'Bonjour, Je m''appelle Brigitte. Ne bougez pas, je vais vous prendre en photo.  Le petit oiseau va sortir'
     doBilingualMsg(msg_en, msg_fr)
 
     try:
@@ -48,7 +48,7 @@ def do_bartender():
     doBilingualMsg(msg_en, msg_fr)
 
     # Valid Values: HAPPY | SAD | ANGRY | CONFUSED | DISGUSTED | SURPRISED | CALM | UNKNOWN | FEAR
-    if age_range_low < 21:
+    if age_range_low <25:
         drink_group = 'child'
         this_drink = recipe_limesoda
     else:
@@ -60,7 +60,7 @@ def do_bartender():
         else:
             this_drink = recipe_vodkasoda
 
-    map_emotion = {"HAPPY":"heureux", "SAD":"SAD", "ANGRY":"ANGRY", "CONFUSED":"CONFUSED", "DISGUSTED":"DISGUSTED", "SURPRISED":"SURPRISED", "CALM":"CALM", "UNKNOWN":"UNKNOWN", "FEAR":"FEAR"}
+    map_emotion = {"HAPPY":"heureux", "SAD":"triste", "ANGRY":"en colere", "CONFUSED":"confuse", "DISGUSTED":"deguse", "SURPRISED":"surpris", "CALM":"calme", "UNKNOWN":"inconnue", "FEAR":"peur"}
     emotion_fr = map_emotion[emotion]
 
     msg_en = "As you appear to be {}, I think an appropriate {} drink would be a {}. ".format(emotion, drink_group, this_drink['Name'])
@@ -68,17 +68,17 @@ def do_bartender():
     doBilingualMsg(msg_en, msg_fr)
 
 
-    msg_en = "Press the green button for a {}, or the black button to cancel ".format(this_drink['Name'])
-    msg_fr = "Appuyez sur le bouton vert pour un {}, ou appuyez sur le bouton noir pour annuler ".format(this_drink['Name'])
+    msg_en = "Press the black button for a {}, or the red button to cancel ".format(this_drink['Name'])
+    msg_fr = "Appuyez sur le bouton noir pour un {}, ou appuyez sur le bouton rougue pour annuler ".format(this_drink['Name'])
     doBilingualMsg(msg_en, msg_fr)
     while True:
         time.sleep(0.1)
-        if button_black():
+        if button_red():
             doBilingualMsg("OK, cancelled", "OK, annule")
             time.sleep(1)
             break;
 
-        elif button_green():
+        elif button_blk():
             wait_time = pump.do_drink(this_drink)
             msg_en = "Please be patient; your {} will be ready in {} seconds.".format(this_drink['Name'], wait_time)
             msg_fr = "Merci de patienter; votre {} sera pret dans {} secondes.".format(this_drink['Name'], wait_time)
@@ -96,10 +96,11 @@ if __name__ == "__main__":
 
     button_setup()
     while True:
-        if button_black():
+        if button_red():
             do_bartender()
 
-        if button_green():
+        if button_blk():
             doBilingualMsg('Boozy boozy. Boozy boozy. Would you like a Boozy boozy?', 'Allez viens boire un petit coup!')
 
         time.sleep(0.1)
+    
