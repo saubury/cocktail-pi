@@ -5,29 +5,31 @@ Build instructions for a fully automated home build cocktail maker. How to use a
 
 Drinks are selected based on your emotion and multilingual voice prompts let you know when your drink is available. 🍸
 
+For a complete video see [here](https://www.youtube.com/watch?v=8q_5STFzJ6c)
+
 # Hardware Components
 
 ## Pumps
 I used 4 [peristaltic pumps](https://en.wikipedia.org/wiki/Peristaltic_pump) to provide a "food safe" way to pump the liquids from the drink bottles
 
 
-![peristaltic pumps](./pics/IMG_7818.jpg)
+![peristaltic pumps](./pics/IMG_7818.JPG)
 
 The pumps are mounted on a basic wooden frame higher than the tallest bottle
-![pumps mounted](./pics/IMG_7943.jpg)
+![pumps mounted](./pics/IMG_7943.JPG)
 
 A view from the rear show the placement of pumpts and liquids
-![drinks rear](./pics/IMG_7954.jpg)
+![drinks rear](./pics/IMG_7954.JPG)
 
 
 
 
 
 These are 12 volt motors. To operate them via the Raspberry Pi I used a [4 Channel 12V Relay Module](https://www.jaycar.com.au/arduino-compatible-4-channel-12v-relay-module/p/XC4440) 
-![relay block](./pics/IMG_7939.jpg)
+![relay block](./pics/IMG_7939.JPG)
 
 The Raspberry Pi is mounted with the relay board
-![Raspberry pi with relay board](./pics/IMG_8022.jpg)
+![Raspberry pi with relay board](./pics/IMG_8022.JPG)
 
 
 # Software
@@ -110,5 +112,5 @@ os.system('mpg123 -q {}'.format(file_mp3))
 # Summary
 A few hours and a bit of programming and you too can enjoy a 🍹 cocktail pi. Enjoy! 
 
-![drinks](./pics/drinks.jpg)
+![drinks](./pics/drinks.JPG)
 
