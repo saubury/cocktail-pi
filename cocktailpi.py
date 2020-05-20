@@ -50,11 +50,16 @@ def do_bartender():
     # Valid Values: HAPPY | SAD | ANGRY | CONFUSED | DISGUSTED | SURPRISED | CALM | UNKNOWN | FEAR
     if age_range_low <25:
         drink_group = 'child'
-        this_drink = recipe_limesoda
+        if (emotion in [ 'HAPPY','CONFUSED', 'SURPRISED' ]):
+            this_drink = recipe_cranburrysoda
+        else:
+            this_drink = recipe_limesoda
     else:
         drink_group = 'adult'
-        if (emotion in [ 'HAPPY', 'CONFUSED', 'SURPRISED' ]):
-            this_drink = recipe_vodkasodacranburry
+        if (emotion in [ 'HAPPY' ]):
+            this_drink = recipe_vodkasodalimecranburry
+        elif (emotion in [ 'CONFUSED', 'SURPRISED' ]):
+            this_drink = recipe_vodkasodacranburry            
         elif (emotion in [ 'ANGRY', 'DISGUSTED', 'FEAR' ]):
             this_drink = recipe_vodkalimesoda            
         else:
